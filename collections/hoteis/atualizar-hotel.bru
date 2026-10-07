@@ -1,0 +1,20 @@
+meta {
+  name: atualizar-hotel
+  type: http
+  seq: 1
+}
+
+put {
+  url: http://127.0.0.1:5000/hoteis/paraiso
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "nome": "paraiso put",
+    "estrelas": 4.5,
+    "diaria": 200,
+    "cidade": "Las Vegas"
+  }
+}

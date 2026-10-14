@@ -26,13 +26,11 @@ class Hotel(Resource):
     argumentos.add_argument("diaria", type=str, required=True, help="O nome do hotel é obrigatório")
     argumentos.add_argument("cidade", type=str, required=True, help="O nome do hotel é obrigatório")
 
-
     def encontrar_hotel(self,hotel_id):
         for hotel in hoteis:
             if hotel["hotel_id"] == hotel_id:
                 return hotel
             return None
-
 
     # Buscar
     def get(self, hotel_id):
@@ -41,11 +39,10 @@ class Hotel(Resource):
             return hotel, 200
         return  {"mensagem": "Hotel não foi encontrado."}
 
-
     # Apagar
     def delete(self, hotel_id):
         global hoteis  # se formos usar uma lista de fora da class temos de dizer que é uma classe do "global"
-        hoteis = [hotel for hoteis in hotel["hotel_id"] if hotel["hotel_id"] != hotel_id]
+        hoteis = [hotel for hotel in hoteis if hotel["hotel_id"] != hotel_id]
         return {"mensagem": f"O hotel com hotel id {hotel_id} foi removido com sucesso."}, 200
 
 
@@ -56,19 +53,24 @@ class Hotel(Resource):
 
         hotel = self.encontrar_hotel(hotel_id)
         # verifica cada hotel se já tem um hotel_id dentro da base de dados, se existir, retorna um JSON(dicionário) com uma mensagem a avisar que o hotel já existe
-        for hotel in hoteis:
-                    if hotel["hotel_id"] == hotel_id:
-                        return {"mensagem": f"O hotel com id {hotel_id} já existe."}  # HTTP Requests recebem e retornam sempre JSONs(que são dicionários, logo temos de retornar um dicionário)
+
+        if HotelModel.find_hotel["hotel_id"] == hotel_id:
+            return {"mensagem": f"O hotel com id {hotel_id} já existe."}  # HTTP Requests recebem e retornam sempre JSONs(que são dicionários, logo temos de retornar um dicionário)
         
-        novo_hotel = {"hotel_id": hotel_id, **dados}  # dois "**" chama um dicionário
-        hoteis.append(novo_hotel)
+        novo_hotel = HotelModel(hotel_id, **dados).json()  # dois "**" chama um dicionário
+        novo_hotel.save_hotel()
         return novo_hotel, 200  # "200" é o RESPONSE CODE
 
 
     # Atualizar
     def put(self, hotel_id):
-        novos_dados = Hotel.argumentos.parse_args()  # cria um dicionário com as quatro variáveis (dados)  || Dados é um dicionario
+        dados = Hotel.argumentos.parse_args()  # cria um dicionário com as quatro variáveis (dados)  || Dados é um dicionario
+
         for hotel in hoteis:
             if hotel["hotel_id"] == hotel_id:
-                hotel.update(novos_dados)
-                return hoteis, 201  # devolve RESPONSE CODE 201 (Created)
+                hotel.update(dados)
+                return hoteis, 200  # devolve RESPONSE CODE 201 (Created)
+            
+            novo_hotel = HotelModel(hotel_id, **dados).json()  # dois "**" chama um dicionário
+            hoteis.append(novo_hotel)
+            return novo_hotel, 201  # "200" é o RESPONSE CODE

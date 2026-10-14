@@ -1,7 +1,8 @@
+# Inicio da aplicação (app.py)
 from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from resources.hotel import Hoteis, Hotel
-
+from con_sql_alchemy import bd
 
 # NOTA IMPORTANTE: antes de correr o programa temos de entrar no ambiente virtual(se ainda não estivermos) ". venv/bin/activate"
 # depois podemos iniciar o servidor "python app.py"
@@ -9,11 +10,18 @@ from resources.hotel import Hoteis, Hotel
 app = Flask(__name__)
 api = Api(app)  # variavel para dizer que estou a trabalhar na minha API
 
+# Configurações
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///hoteis.db"  # vai criar uma base de dados com o nome hoteis.db || SQLLite é uma base de dados muito lee para coisas simples, mas o SQLAlchemy pode
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # serve para o servidor não mostrar os "logs" durante o processo da aplicação
+
 
 api.add_resource(Hoteis,"/hoteis")
 api.add_resource(Hotel, "/hoteis/<string:hotel_id>")  # como a class Hotel recebe o parametro "hotel_id" entao temos de dizer que vai receber uma String
 
 if __name__ == "__main__":
+    bd.init_app(app)
+    with app.app_context():
+        bd.create_all()  # Cria todas as tabelas definidas no modelo SQLAlchemy
     app.run(debug=True)  # debug=true para aparecer oque retorna, como ainda estamos a testar a api vamos deixar o debug ativo
 
 

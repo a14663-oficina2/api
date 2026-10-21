@@ -1,7 +1,7 @@
 # Este contrutor vai servir para qunado eu quiser criar uma class sem adicionar a base de dados
 from con_sql_alchemy import bd
 
-class HotelModel(bd.model):
+class HotelModel(bd.Model):
     __tablename__ = "hoteis"  # nome da tabela que vai ser criada na base de dados
     hotel_id = bd.Column(bd.String, primary_key=True)
     nome = bd.Column(bd.String(80))
@@ -30,11 +30,23 @@ class HotelModel(bd.model):
             return hotel
         return None
 
+
     def save_hotel(self):
         bd.session.add(self)
         bd.session.commit()  # commit para a base de dados para enviar os dados
         # Problema deste código: numa base de dados normal os dados sao enviados todos ou não são enviados, este codigo coloca dados um por um de cada vez nas tabelas,
         # logo se a luz for abaixo ele pode colocar alguns dos dados enviamos e outros não oque está mal, ele devia colocar os dados todos ou nenhuns
 
+    
+    def update_hotel(self, nome_atualizado, estrelas_atualizadas, diaria_atualizada, cidade_atualizada):
+        self.nome = nome_atualizado
+        self.estrelas = estrelas_atualizadas
+        self.diaria = diaria_atualizada
+        self.cidade = cidade_atualizada
 
-#x = HotelModel("oficina","Oficina Hotel",4.1,120.99,"Santo Tirso")
+    
+    def delete_hotel(self):
+        bd.session.delete(self)  # Delete próprio do python
+        bd.session.commit()
+
+        

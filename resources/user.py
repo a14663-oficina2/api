@@ -1,7 +1,7 @@
 # Este "hotel.py" serve para os Gets, Posts...
 from flask_restful import Resource, reqparse
 from models.user import UserModel  # importar a classe HotelModel do hotel.py em "models/"
-
+from hmac import compare_digest
 
 # cada rota/endpoint(link, o get, o post...) vai ter de estar associado a uma classe
 # API
@@ -49,4 +49,12 @@ class UserRegister(Resource):
             return {"mensagem": "Utilizador criado com sucesso."}, 201
         except:
             return {"mensagem": "Erro interno ocorreu..."}, 500
-            
+
+
+class UserLogin(Resource):
+    argumentos = reqparse.RequestParser()
+    argumentos.add_argument("username", type=str, required=True, help="O username do utilizador é obrigatório")
+    argumentos.add_argument("password", type=str, required=True, help="Password obrigatória")
+
+    def post(self): # Comparar a password inserida com a da base de dados
+         

@@ -2,7 +2,7 @@
 from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from resources.hotel import Hoteis, Hotel
-from resources.user import User
+from resources.user import User, UserRegister
 from con_sql_alchemy import bd
 
 # NOTA IMPORTANTE: antes de correr o programa temos de entrar no ambiente virtual(se ainda não estivermos) ". venv/bin/activate"

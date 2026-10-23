@@ -38,7 +38,7 @@ class UserRegister(Resource):
     argumentos.add_argument("password", type=str, required=True, help="Password obrigatória")
 
     def post(self):
-        dados = User.argumentos.parse_args()
+        dados = UserRegister.argumentos.parse_args()
         # Não passamos o username no URL por segurança do utlizador
         if UserModel.find_user(dados["username"]): # Verifica se ja existe algum
             return {"mensagem": "Já existe um utilizador com este username."}, 400 # Devolve uma mensagem e um RESPONSE_CODE 400

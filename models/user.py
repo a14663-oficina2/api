@@ -44,7 +44,7 @@ class UserModel(bd.Model):
         self.username = username
         self.password = password
 
-    
+
     def delete_user(self):
         bd.session.delete(self)  # Delete próprio do python
         bd.session.commit()

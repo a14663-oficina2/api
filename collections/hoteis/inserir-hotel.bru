@@ -5,16 +5,20 @@ meta {
 }
 
 post {
-  url: http://127.0.0.1:5000/hoteis
+  url: http://127.0.0.1:5000/hoteis/oficina2
   body: json
   auth: none
 }
 
+headers {
+  Authorization: Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc5MzE4MjczMSwianRpIjoiM2FmOWE4M2ItNmQ4Ny00ODMzLTllNGUtOGU0MTAzMjYwMTNmIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImFkbWluIiwibmJmIjoxNzkzMTgyNzMxLCJjc3JmIjoiMDFhZmVjYzktYmQ0Zi00YTVhLWFkODctNDdmMDQ4Mjc0NWM1IiwiZXhwIjoxNzkzMTgzNjMxfQ.X13mbzGAQ9fBUEIHkTGYVQgH7Qyrr3IMwYEMiR_5xKI
+}
+
 body:json {
   {
-    "nome": "Hotel Teste",
-    "estrelas": 4.8,
-    "diaria": 217.99,
-    "cidade": "Porto"
+    "nome": "Hotel Oficina",
+    "estrelas": 4.7,
+    "diaria": 209.99,
+    "cidade": "Famalicao"
   }
 }

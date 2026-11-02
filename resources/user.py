@@ -2,6 +2,9 @@
 from flask_restful import Resource, reqparse
 from models.user import UserModel  # importar a classe HotelModel do hotel.py em "models/"
 from hmac import compare_digest
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt
+from blocklist import BLOCKLIST
+
 
 # cada rota/endpoint(link, o get, o post...) vai ter de estar associado a uma classe
 # API
@@ -20,6 +23,7 @@ class User(Resource):
 
 
     # Apagar
+    @jwt_required() # Só pode eliminar um utilizador se estiver logado
     def delete(self, username):
         user = UserModel.find_user(username)
         if user is not None: 
@@ -57,4 +61,19 @@ class UserLogin(Resource):
     argumentos.add_argument("password", type=str, required=True, help="Password obrigatória")
 
     def post(self): # Comparar a password inserida com a da base de dados
-         
+        dados = UserLogin.argumentos.parse_args()
+        user = UserModel.find_user(dados["username"])
+        if user and compare_digest(user.password, dados["password"]): # se a password que estiver na base de dados "user.password", for igual á que o utilizador inseriu "dados["password"]"
+            token = create_access_token(identity=user.username)
+            return {"acess_token": token}, 200
+        return {"mensagem": "O utilizador ou password está incorreto"}, 401
+
+
+class UserLogout(Resource):
+    @jwt_required
+    def post(self):
+        # Pegar o meu token e invalidar o mesmo
+        jwt_id = get_jwt()["jti"] # Obter o identificador do token e guardar numa variável do token
+        # Anexar este identificador a minha lista de token revogados
+        BLOCKLIST.add(jwt_id) # Adicionar a minha lista de tokens inválidos o atual
+        return { "mensagem": "Logout do utilizador efetuado com sucesso."}, 200

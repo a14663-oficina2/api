@@ -1,14 +1,24 @@
-# Este "hotel.py" serve para os Gets, Posts...
+# Este "hotel.py" serve para os pedidos Gets, Posts...
 from flask_restful import Resource, reqparse
 from models.hotel import HotelModel  # importar a classe HotelModel do hotel.py em "models/"
+from flask_jwt_extended import jwt_required
 
 
 # cada rota/endpoint(link, o get, o post...) vai ter de estar associado a uma classe
 class Hoteis(Resource):
-    # Buscar
+    parametros = reqparse.RequestParser() # Selecionar dados passados na URL
+    parametros.add_argument("cidade", type=str, default=" ", location="args") # Está na chave cidade "cidade" | "args" permite buscar oque está na URL
+    parametros.add_argument("estrelas_min", type=float, default=0, location="args")
+    parametros.add_argument("estrelas_max", type=float, default=0, location="args")
+    parametros.add_argument("diaria_min", type=float, default=0, location="args")
+    parametros.add_argument("diaria_max", type=float, default=0, location="args")
+    parametros.add_argument("items", type=int, default=5, location="args") # Quantos hoteis queremos que mostre por página
+    parametros.add_argument("pagina", type=int, default=1, location="args")
+    
     def get(self):
-        # API retorna sempre um JSON(dicionário ( {"chave": "valor"} ))
-        return { "hoteis": [hotel.json() for hotel in HotelModel.query.all()] }  # vai devolver cada dicionario
+        meus_filtros = Hoteis.parametros.parse_args()
+        query = HotelModel.query # Pesquisar por ...(qualquer coisa) na tabela que HotelModel representa
+
 
 
 # API
@@ -35,11 +45,12 @@ class Hotel(Resource):
 
     # Criar
     # NOTA para não achar estranho: enquanto não estamos a lidar com bases de dados os Posts não vão inserir os dados na lista para sempre, só enquanto o server estiver ligado.
+    @jwt_required() # Significa que é obrigatório estar autenticado
     def post(self, hotel_id):  # o hotel_id vai no URL (endpoint), porque vai ser o identificador de cada hotel
         dados = Hotel.argumentos.parse_args()  # cria um dicionário com as quatro variáveis (dados)
         hotel = HotelModel.find_hotel(hotel_id)
         # verifica cada hotel se já tem um hotel_id dentro da base de dados, se existir, retorna um JSON(dicionário) com uma mensagem a avisar que o hotel já existe
-        if Hotel is not None:
+        if hotel is not None:
             return {"mensagem": f"O hotel com id {hotel_id} já existe."}  # HTTP Requests recebem e retornam sempre JSONs(que são dicionários, logo temos de retornar um dicionário)
         
         novo_hotel = HotelModel(hotel_id, **dados).json()  # dois "**" chama um dicionário
@@ -52,6 +63,7 @@ class Hotel(Resource):
 
 
     # Atualizar
+    @jwt_required()
     def put(self, hotel_id):
         dados = Hotel.argumentos.parse_args()  # cria um dicionário com as quatro variáveis (dados)  || "dados" é um dicionario
 
@@ -72,6 +84,7 @@ class Hotel(Resource):
 
 
     # Apagar
+    @jwt_required()
     def delete(self, hotel_id):
         hotel = HotelModel.find_hotel(hotel_id)
         if hotel is not None: 

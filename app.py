@@ -13,7 +13,7 @@ from datetime import timedelta
 # depois podemos iniciar o servidor "python app.py"
  
 app = Flask(__name__)
-api = Api(app)  # variavel para dizer que estou a trabalhar na minha API
+api = Api(app) # variavel para dizer que estou a trabalhar na minha API
 jwt = JWTManager(app) # Inicializa o JWT para tratar da autenticação das páginas
 
 

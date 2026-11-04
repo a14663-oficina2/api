@@ -13,12 +13,34 @@ class Hoteis(Resource):
     parametros.add_argument("diaria_min", type=float, default=0, location="args")
     parametros.add_argument("diaria_max", type=float, default=0, location="args")
     parametros.add_argument("items", type=int, default=5, location="args") # Quantos hoteis queremos que mostre por página
-    parametros.add_argument("pagina", type=int, default=1, location="args")
+    parametros.add_argument("pagina", type=int, default=1, location="args") 
     
     def get(self):
         meus_filtros = Hoteis.parametros.parse_args()
         query = HotelModel.query # Pesquisar por ...(qualquer coisa) na tabela que HotelModel representa
 
+        if meus_filtros["cidade"]: # http://127.0.0.1/hoteis?cidade=Porto
+            query = query.filter(HotelModel.cidade == meus_filtros["cidade"])
+
+        if meus_filtros["estrelas_min"]: # http://127.0.0.1/hoteis?cidade=Porto&estrelas=...
+            query = query.filter(HotelModel.estrelas >= meus_filtros["estrelas_min"])
+
+        if meus_filtros["estrelas_max"]:
+            query = query.filter(HotelModel.estrelas <= meus_filtros["estrelas_max"])
+
+        if meus_filtros["diaria_min"]:
+            query = query.filter(HotelModel.diaria >= meus_filtros["diaria_min"])
+        
+        if meus_filtros["diaria_max"]:
+                    query = query.filter(HotelModel.diaria <= meus_filtros["diaria_max"])
+
+        pagina = meus_filtros["pagina"]
+        num_hoteis_por_pagina = meus_filtros["items"]
+        pagination = query.paginate(page=pagina,error_out=False)
+
+        resultado_hotel = [hotel.json() for hotel in pagination.items]
+
+        return { "hoteis": resultado_hotel }
 
 
 # API
@@ -53,11 +75,11 @@ class Hotel(Resource):
         if hotel is not None:
             return {"mensagem": f"O hotel com id {hotel_id} já existe."}  # HTTP Requests recebem e retornam sempre JSONs(que são dicionários, logo temos de retornar um dicionário)
         
-        novo_hotel = HotelModel(hotel_id, **dados).json()  # dois "**" chama um dicionário
+        novo_hotel = HotelModel(hotel_id, **dados)  # dois "**" chama um dicionário
 
         try:  # Tenta fazer isto...
             novo_hotel.save_hotel()
-            return novo_hotel, 200  # "200" é o RESPONSE CODE
+            return novo_hotel.json(), 200  # "200" é o RESPONSE CODE
         except:  # Senão...
             return{ "mensagem": "Um erro interno do servidor aconteceu..."}, 500 # RESPONSE ERROR 500 - erro na base de dados
 
